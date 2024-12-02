@@ -1,3 +1,5 @@
+//! Utility that simulates a high cpu load.
+//! It creates `N` OS native threads each of which spins in a tight loop calculating the sqrt() of a random number.  
 use rand::{thread_rng, Rng};
 use tokio::{
     sync::oneshot::{self, error::TryRecvError, Receiver},
@@ -13,13 +15,23 @@ fn compute(mut rx: Receiver<()>) {
     }
 }
 
-//#[cfg(test)]
-//mod tests {
-//    use super::*;
-//
-//    #[test]
-//    fn it_works() {
-//        let result = add(2, 2);
-//        assert_eq!(result, 4);
-//    }
-//}
+/// Spawn `cpus` workers (native OS threads) spinning on `sqrt()` and timeouts after `timeout` seconds.
+pub async fn stress(cpus: usize, timeout: u64) {
+    let mut handles = vec![];
+    let mut channels = vec![];
+
+    for _ in 0..cpus {
+        let (tx, rx) = oneshot::channel();
+        channels.push(tx);
+        handles.push(std::thread::spawn(|| compute(rx)));
+    }
+
+    tokio::time::sleep(Duration::from_secs(timeout)).await;
+
+    for tx in channels {
+        tx.send(()).unwrap();
+    }
+    for handle in handles {
+        handle.join().unwrap();
+    }
+}
