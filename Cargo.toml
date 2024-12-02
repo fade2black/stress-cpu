@@ -2,6 +2,8 @@
 name = "stress-cpu"
 version = "0.1.0"
 edition = "2021"
+description = "Utility that simulates a high cpu load."
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 num_cpus = "1.16.0"
