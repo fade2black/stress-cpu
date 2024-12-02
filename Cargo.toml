@@ -1,6 +1,6 @@
 [package]
 name = "stress-cpu"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 description = "Utility that simulates a high cpu load."
 license = "MIT OR Apache-2.0"
